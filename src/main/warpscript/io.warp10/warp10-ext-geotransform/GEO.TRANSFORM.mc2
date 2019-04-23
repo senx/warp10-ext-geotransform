@@ -1,0 +1,51 @@
+<%
+  {
+    'name' 'GEO.TRANSFORM'
+    'desc'
+      <'
+Transform coordinates from one Coordinate Reference System (CRS) to another. `GEO.TRANSFORM` consumes a pair of numbers, a source and a target CRS and pushes back a pair of **DOUBLE** in the target CRS.
+
+This function uses Proj4J and thus uses its conventions, namely longitude latitude in world coordinates instead of latitude longitude Warp 10™ uses.
+      '>
+    'sig' [
+      [ [ 'x:LONG' 'y:LONG' 'targetCRS:STRING' ]  [ 'transformed_x:DOUBLE' 'transformed_y:DOUBLE' ] ]
+      [ [ 'x:DOUBLE' 'y:DOUBLE' 'targetCRS:STRING' ]  [ 'transformed_x:DOUBLE' 'transformed_y:DOUBLE' ] ]
+      [ [ 'x:LONG' 'y:LONG' 'sourceCRS:STRING' 'targetCRS:STRING' ]  [ 'transformed_x:DOUBLE' 'transformed_y:DOUBLE' ] ]
+      [ [ 'x:DOUBLE' 'y:DOUBLE' 'sourceCRS:STRING' 'targetCRS:STRING' ]  [ 'transformed_x:DOUBLE' 'transformed_y:DOUBLE' ] ]
+     ]
+    'params' {
+      'x' 'The x coordinate in source CRS. Be careful, x is longitude in world CRS.'
+      'y' 'The y coordinate in source CRS. Be careful, y is latitude in world CRS.'
+      'sourceCRS' 'The CRS of the given coordinates. If not given, defaults to EPSG:4326 which is the Warp 10™ default CRS.'
+      'targetCRS' 'The CRS of the returned coordinates'
+      'transformed_x' 'The x coordinate in target CRS.'
+      'transformed_y' 'The y coordinate in target CRS.'
+    }
+    'related' []
+    'examples' [
+<'
+// From lat:12.534 lon:54.345 to Pseudo-Mercator
+54.345 12.534 "EPSG:3857" GEO.TRANSFORM
+
+// From Pseudo-Mercator to Lambert-93
+6049657.73 1406542.2 "EPSG:3857" "EPSG:2154" GEO.TRANSFORM
+'>
+    ]
+    'conf' [ 'geotransform.cache.size' ]
+  } INFO
+
+  GEO.TRANSFORM
+%>
+'macro' STORE
+
+//
+// Unit tests
+//
+
+54.345 12.534 "EPSG:3857" GEO.TRANSFORM
+"EPSG:3857" "EPSG:2154" GEO.TRANSFORM
+
+4674985.239922722 0.000001 ~= ASSERT
+6770001.434638832 0.000001 ~= ASSERT
+
+$macro
