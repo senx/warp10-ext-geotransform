@@ -34,7 +34,7 @@ This function uses Proj4J and thus uses its conventions, namely longitude latitu
     'conf' [ 'geotransform.cache.size' ]
   } INFO
 
-  GEO.TRANSFORM
+  'GEO.TRANSFORM' EVAL
 %>
 'macro' STORE
 
@@ -42,8 +42,12 @@ This function uses Proj4J and thus uses its conventions, namely longitude latitu
 // Unit tests
 //
 
-54.345 12.534 "EPSG:3857" GEO.TRANSFORM
-"EPSG:3857" "EPSG:2154" GEO.TRANSFORM
+'io.warp10.script.ext.geotransform.GeoTransformWarpScriptExtension' EXTLOADED NOT
+<% $macro STOP %>
+IFT
+
+54.345 12.534 "EPSG:3857" 'GEO.TRANSFORM' EVAL
+"EPSG:3857" "EPSG:2154" 'GEO.TRANSFORM' EVAL
 
 4674985.239922722 0.000001 ~= ASSERT
 6770001.434638832 0.000001 ~= ASSERT
