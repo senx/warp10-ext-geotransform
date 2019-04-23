@@ -139,9 +139,11 @@ jar {
    //
    // Only consider macros which are in our namespace
    //
-   include 'io.warp10.ext.geotransform/warp10-ext-geotransform/*.mc2'
-   include 'io.warp10.ext.geotransform/warp10-ext-geotransform/**/*.mc2'
-   include 'io.warp10.ext.geotransform/warp10-ext-geotransform/README.md'
+   include 'io.warp10/warp10-ext-geotransform/*.mc2'
+   include 'io.warp10/warp10-ext-geotransform/**/*.mc2'
+  }
+  from('.') {
+    include 'README.md'
   }
 }
 
@@ -159,9 +161,11 @@ shadowJar {
    //
    // Only consider macros which are in our namespace
    //
-   include 'io.warp10.ext.geotransform/warp10-ext-geotransform/*.mc2'
-   include 'io.warp10.ext.geotransform/warp10-ext-geotransform/**/*.mc2'
-   include 'io.warp10.ext.geotransform/warp10-ext-geotransform/README.md'
+   include 'io.warp10/warp10-ext-geotransform/*.mc2'
+   include 'io.warp10/warp10-ext-geotransform/**/*.mc2'
+  }
+  from('.') {
+    include 'README.md'
   }
 }
 
