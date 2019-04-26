@@ -7,10 +7,10 @@ Transform coordinates from one Coordinate Reference System (CRS) to another. `GE
 This function uses Proj4J and thus uses its conventions, namely longitude latitude in world coordinates instead of latitude longitude Warp 10™ uses.
     '>
   'sig' [
-    [ [ 'x:LONG' 'y:LONG' 'targetCRS:STRING' ]  [ 'transformed_x:DOUBLE' 'transformed_y:DOUBLE' ] ]
-    [ [ 'x:DOUBLE' 'y:DOUBLE' 'targetCRS:STRING' ]  [ 'transformed_x:DOUBLE' 'transformed_y:DOUBLE' ] ]
-    [ [ 'x:LONG' 'y:LONG' 'sourceCRS:STRING' 'targetCRS:STRING' ]  [ 'transformed_x:DOUBLE' 'transformed_y:DOUBLE' ] ]
-    [ [ 'x:DOUBLE' 'y:DOUBLE' 'sourceCRS:STRING' 'targetCRS:STRING' ]  [ 'transformed_x:DOUBLE' 'transformed_y:DOUBLE' ] ]
+    [ [ 'targetCRS:STRING' 'y:LONG' 'x:LONG' ]  [ 'transformed_y:DOUBLE' 'transformed_x:DOUBLE' ] ]
+    [ [ 'targetCRS:STRING' 'y:DOUBLE' 'x:DOUBLE' ]  [ 'transformed_y:DOUBLE' 'transformed_x:DOUBLE' ] ]
+    [ [ 'targetCRS:STRING' 'sourceCRS:STRING' 'y:LONG' 'x:LONG' ]  [ 'transformed_y:DOUBLE' 'transformed_x:DOUBLE' ] ]
+    [ [ 'targetCRS:STRING' 'sourceCRS:STRING' 'y:DOUBLE' 'x:DOUBLE' ]  [ 'transformed_y:DOUBLE' 'transformed_x:DOUBLE' ] ]
     ]
   'params' {
     'x' 'The x coordinate in source CRS. Be careful, x is longitude in world CRS.'
