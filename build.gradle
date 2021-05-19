@@ -14,13 +14,19 @@
 //   limitations under the License.
 //
 
+
+
 plugins {
-  id 'java-library'
-  id 'maven-publish'
-  id 'signing'
-  id 'com.github.johnrengelman.shadow' version '7.0.0'
-  id 'net.nemerosa.versioning' version '2.14.0'
-  id 'io.github.gradle-nexus.publish-plugin' version '1.1.0'
+    id 'com.github.johnrengelman.shadow' version '7.0.0'
+    id 'net.nemerosa.versioning' version '2.14.0'
+    id 'io.codearte.nexus-staging' version '0.22.0'
+    id 'antlr'
+    id 'java'
+    id 'java-library'
+    id 'idea'
+    id 'eclipse'
+    id 'maven-publish'
+    id 'signing'
 }
 
 project.group = 'io.warp10'
@@ -59,99 +65,174 @@ java {
   withJavadocJar()
   withSourcesJar()
 }
-
 jar {
-  manifest {
-   attributes('WarpFleet-Description': project.description)
-   attributes('WarpFleet-Group': project.group)
-   attributes('WarpFleet-Artifact': project.name)
-   attributes('WarpFleet-Version': project.version)
-  }
+    manifest {
+        attributes('WarpFleet-Description': project.description)
+        attributes('WarpFleet-Group': project.group)
+        attributes('WarpFleet-Artifact': project.name)
+        attributes('WarpFleet-Version': project.version)
+    }
 
-  from('src/main/warpscript') {
-    //
-    // Only consider macros which are in our namespace
-    //
-    include project.group + '/' + project.name + '/*.mc2'
-    include project.group + '/' + project.name + '/**/*.mc2'
-  }
+    from('src/main/warpscript') {
+        //
+        // Only consider macros which are in our namespace
+        //
+        include project.group + '/' + project.name + '/*.mc2'
+        include project.group + '/' + project.name + '/**/*.mc2'
+    }
 
-  from('.') {
-    include 'README.md'
-    include project.group + '-' + project.name + '.conf'
-  }
+    from('.') {
+        include 'README.md'
+        include project.group + '-' + project.name + '.conf'
+    }
 }
 
 shadowJar {
-  archiveClassifier.set('uberjar')
+    classifier = ''
 
-  from('src/main/warpscript') {
-    //
-    // Only consider macros which are in our namespace
-    //
-    include project.group + '/' + project.name + '/*.mc2'
-    include project.group + '/' + project.name + '/**/*.mc2'
-  }
+    manifest {
+        attributes('WarpFleet-Description': project.description)
+        attributes('WarpFleet-Group': project.group)
+        attributes('WarpFleet-Artifact': project.name)
+        attributes('WarpFleet-Version': project.version)
+    }
 
-  from('.') {
-    include 'README.md'
-    include project.group + '-' + project.name + '.conf'
-  }
+    from('src/main/warpscript') {
+        //
+        // Only consider macros which are in our namespace
+        //
+        include project.group + '/' + project.name + '/*.mc2'
+        include project.group + '/' + project.name + '/**/*.mc2'
+    }
+
+    from('.') {
+        include 'README.md'
+        include project.group + '-' + project.name + '.conf'
+    }
+
+    dependencies {
+        exclude(dependency('org.slf4j::'))
+    }
 }
 
+shadowJar.dependsOn(test)
 
 //
 // Maven related config
 //
-
 publishing {
-  publications {
-    module(MavenPublication) {
-      from components.java
+    publications {
+        maven(MavenPublication) {
+            groupId project.group
+            artifactId project.name
+            version = project.version
+            from components.java
+            pom {
+                name = project.name
+                description = project.description
+                url = 'https://github.com/senx/' + project.name
 
-      pom {
-        name = project.name
-        description = project.description
-        url = 'https://github.com/senx/' + project.name
+                scm {
+                    connection = 'scm:git:git://github.com/senx/' + project.name
+                    developerConnection = 'scm:git:ssh://github.com/senx/' + project.name
+                    url = 'https://github.com/senx/' + project.name
+                }
 
-        scm {
-          connection = 'scm:git:git://github.com/senx/' + project.name
-          developerConnection = 'scm:git:ssh://github.com/senx/' + project.name
-          url = 'https://github.com/senx/' + project.name
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id = 'senx'
+                        name = 'SenX'
+                        email = 'contact@senx.io'
+                    }
+                }
+            }
         }
+        uberJar(MavenPublication) {
+            groupId project.group
+            artifactId project.name
+            artifact(shadowJar)
+            artifact(tasks['javadocJar'])
+            artifact(tasks['sourcesJar'])
+            version = project.version + '-uberjar'
 
-        licenses {
-          license {
-            name = 'The Apache License, Version 2.0'
-            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-          }
-        }
+            pom {
+                name = project.name
+                description = project.description
+                url = 'https://github.com/senx/' + project.name
 
-        developers {
-          developer {
-            id = 'senx'
-            name = 'SenX'
-            email = 'contact@senx.io'
-          }
+                scm {
+                    connection = 'scm:git:git://github.com/senx/' + project.name
+                    developerConnection = 'scm:git:ssh://github.com/senx/' + project.name
+                    url = 'https://github.com/senx/' + project.name
+                }
+
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id = 'senx'
+                        name = 'SenX'
+                        email = 'contact@senx.io'
+                    }
+                }
+            }
         }
-      }
     }
-  }
+
+    repositories {
+        if (project.hasProperty('ossrhUsername')) {
+            maven {
+                url 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+                credentials {
+                    username ossrhUsername
+                    password ossrhPassword
+                }
+            }
+        }
+        if (project.hasProperty('nexusUsername')) {
+            maven {
+                name 'nexus'
+                allowInsecureProtocol true
+                url "$nexusHost/repository/maven-releases/"
+                credentials {
+                    username nexusUsername
+                    password nexusPassword
+                }
+            }
+        }
+    }
 }
 
-nexusPublishing {
-  repositories {
-    sonatype()
-  }
+artifacts {
+    archives shadowJar, javadocJar, sourcesJar
+}
+
+if (project.hasProperty('ossrhUsername')) {
+    nexusStaging {
+        packageGroup = 'io.warp10'
+        username ossrhUsername
+        password ossrhPassword
+    }
 }
 
 //
-// Artifact Signing only if signing key name is in the properties
+// Artifact Signing
 //
-
-if (project.hasProperty("signing.gnupg.keyName")) {
-  signing {
-    useGpgCmd()
-    sign publishing.publications
-  }
+if (project.hasProperty('signing.gnupg.keyName')) {
+    signing {
+        useGpgCmd()
+        sign publishing.publications
+    }
 }
