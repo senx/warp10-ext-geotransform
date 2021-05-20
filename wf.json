@@ -8,7 +8,7 @@
   "email": "contact@senx.io",
   "license": "Apache-2.0",
   "git": "https://github.com/senx/warp10-ext-geotransform",
-  "repoUrl": "https://maven.org/maven2/io/warp10/",
+  "repoUrl": "https://repo.maven.apache.org/maven2",
   "tags": [
     "geographic coordinate system",
     "transformation"

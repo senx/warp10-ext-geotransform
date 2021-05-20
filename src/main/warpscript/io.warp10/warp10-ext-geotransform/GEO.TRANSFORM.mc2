@@ -40,8 +40,6 @@ This function uses Proj4J and thus uses its conventions, namely longitude latitu
   $context RESTORE
 %>
 'macro' STORE
-
-//
 // Unit tests
 //
 
