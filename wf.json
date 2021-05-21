@@ -2,7 +2,7 @@
   "type": "ext",
   "group": "io.warp10",
   "artifact": "warp10-ext-geotransform",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Extension to transform coordinates from one geographic coordinate system to another. Based on Proj4J.",
   "author": "SenX",
   "email": "contact@senx.io",
