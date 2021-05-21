@@ -66,15 +66,6 @@ sourceSets {
     main {
         compileClasspath = compileClasspath + configurations.provided
     }
-    generated {
-        compileClasspath = compileClasspath + configurations.provided + main.compileClasspath + main.output
-        java {
-            srcDirs 'src/generated/jmh/java'
-        }
-        resources {
-            srcDirs 'src/generated/jmh/resources'
-        }
-    }
 }
 
 eclipse.classpath.plusConfigurations += [configurations.provided]  // Eclipse users only
