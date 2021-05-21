@@ -1,5 +1,5 @@
 //
-//   Copyright 2019 - 2021  SenX S.A.S.
+//   Copyright 2019-2020  SenX S.A.S.
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
@@ -14,13 +14,10 @@
 //   limitations under the License.
 //
 
-
-
 plugins {
     id 'com.github.johnrengelman.shadow' version '7.0.0'
     id 'net.nemerosa.versioning' version '2.14.0'
     id 'io.codearte.nexus-staging' version '0.22.0'
-    id 'antlr'
     id 'java'
     id 'java-library'
     id 'idea'
@@ -34,37 +31,66 @@ project.description = 'Extension to transform coordinates from one geographic co
 
 // If the current tag is set, then it's a new release. Don't add build number
 project.version = versioning.info.lastTag + ((versioning.info.tag != null) ? '' : '-' + versioning.info.build)
-
 //
 // Repositories for the project dependencies
 //
 
 repositories {
-  mavenCentral()
+    mavenCentral()
+}
+
+configurations {
+    provided
 }
 
 //
 // Dependencies of the project
 //
-
 dependencies {
-  //
-  // Insert your dependencies here
-  //
-  //implementation group: 'GROUP', name: 'NAME', version: 'VERSION', classifier: 'CLASSIFIER'
-  implementation group: 'org.locationtech.proj4j', name: 'proj4j', version: '1.1.2'
+    compileOnly 'io.warp10:warpscript:+'
 
-  // Use JUnit test framework.
-  testImplementation 'junit:junit:4.13'
+    //
+    // Insert your dependencies here
+    //
+    implementation group: 'org.locationtech.proj4j', name: 'proj4j', version: '1.1.2'
 
-  // Compile time only dependencies, not used at runtime, or provided by other dependencies.
-  compileOnly group: 'io.warp10', name: 'warpscript', version: '2.+'
+    testImplementation 'io.warp10:warpscript:+'
+    testImplementation 'junit:junit:4.12'
+}
+
+test {
+    useJUnit()
+}
+
+sourceSets {
+    main {
+        compileClasspath = compileClasspath + configurations.provided
+    }
+    generated {
+        compileClasspath = compileClasspath + configurations.provided + main.compileClasspath + main.output
+        java {
+            srcDirs 'src/generated/jmh/java'
+        }
+        resources {
+            srcDirs 'src/generated/jmh/resources'
+        }
+    }
+}
+
+eclipse.classpath.plusConfigurations += [configurations.provided]  // Eclipse users only
+
+// for IntelliJ users
+idea {
+    module {
+        scopes.PROVIDED.plus += [configurations.provided]
+    }
 }
 
 java {
-  withJavadocJar()
-  withSourcesJar()
+    withJavadocJar()
+    withSourcesJar()
 }
+
 jar {
     manifest {
         attributes('WarpFleet-Description': project.description)
@@ -88,7 +114,8 @@ jar {
 }
 
 shadowJar {
-    classifier = ''
+    // In build/libs the shadowJar is suffixed with the uberjar classifier.
+    archiveClassifier.set('uberjar')
 
     manifest {
         attributes('WarpFleet-Description': project.description)
@@ -109,59 +136,36 @@ shadowJar {
         include 'README.md'
         include project.group + '-' + project.name + '.conf'
     }
-
-    dependencies {
-        exclude(dependency('org.slf4j::'))
-    }
 }
 
-shadowJar.dependsOn(test)
+//
+// Remove the ShadowJar from the java component. This avoids publishing the shadowJar
+// when using "from components.java".
+//
+components.java.withVariantsFromConfiguration(configurations.shadowRuntimeElements) {
+    skip()
+}
 
 //
 // Maven related config
 //
 publishing {
     publications {
-        maven(MavenPublication) {
-            groupId project.group
-            artifactId project.name
-            version = project.version
+        jar(org.gradle.api.publish.maven.MavenPublication) {
             from components.java
-            pom {
-                name = project.name
-                description = project.description
-                url = 'https://github.com/senx/' + project.name
-
-                scm {
-                    connection = 'scm:git:git://github.com/senx/' + project.name
-                    developerConnection = 'scm:git:ssh://github.com/senx/' + project.name
-                    url = 'https://github.com/senx/' + project.name
-                }
-
-                licenses {
-                    license {
-                        name = 'The Apache License, Version 2.0'
-                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-
-                developers {
-                    developer {
-                        id = 'senx'
-                        name = 'SenX'
-                        email = 'contact@senx.io'
-                    }
-                }
-            }
         }
-        uberJar(MavenPublication) {
-            groupId project.group
-            artifactId project.name
-            artifact(shadowJar)
+        uberJar(org.gradle.api.publish.maven.MavenPublication) {
+            // Publishing the shadowJar is done using the version and not the classifier as
+            // Spark cannot use classifier dependencies.
+            artifact(tasks['shadowJar']) { classifier = null }
             artifact(tasks['javadocJar'])
             artifact(tasks['sourcesJar'])
-            version = project.version + '-uberjar'
+            version += '-uberjar'
+        }
 
+        // Configure all POMs
+        withType(org.gradle.api.publish.maven.MavenPublication) {
+            // customize all publications here
             pom {
                 name = project.name
                 description = project.description
@@ -213,10 +217,6 @@ publishing {
             }
         }
     }
-}
-
-artifacts {
-    archives shadowJar, javadocJar, sourcesJar
 }
 
 if (project.hasProperty('ossrhUsername')) {
