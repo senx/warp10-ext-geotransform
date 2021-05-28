@@ -30,7 +30,7 @@ project.group = 'io.warp10'
 project.description = 'Extension to transform coordinates from one geographic coordinate system to another. Based on Proj4J.'
 
 // If the current tag is set, then it's a new release. Don't add build number
-project.version = versioning.info.lastTag + ((versioning.info.tag != null) ? '' : '-' + versioning.info.build)
+project.version = getVersion()
 //
 // Repositories for the project dependencies
 //
@@ -225,5 +225,19 @@ if (project.hasProperty('signing.gnupg.keyName')) {
     signing {
         useGpgCmd()
         sign publishing.publications
+    }
+}
+
+def getVersion() {
+    def nogit = System.getProperty("nogit")
+    if (null == nogit) {
+        def version = versioning.info.lastTag
+        // If the current tag is set, then it's a new release. Don't add build number.
+        if (null == versioning.info.tag) {
+            version += '-' + versioning.info.build
+        }
+        return version
+    } else {
+        return nogit
     }
 }
