@@ -39,7 +39,7 @@ public class GEOTRANSFORM extends NamedWarpScriptFunction implements WarpScriptS
    * Class to define pair of Coordinate Reference Systems (CRSs) from source to target.
    * Used as a key for the caching map.
    */
-  private class CrsPair {
+  private static class CrsPair {
 
     private final String source;
     private final String target;
@@ -166,8 +166,7 @@ public class GEOTRANSFORM extends NamedWarpScriptFunction implements WarpScriptS
     CoordinateTransform transform;
     try {
       transform = crsTransformCache.get(new CrsPair(sourceCRS, targetCRS));
-    }
-    catch (UnsupportedParameterException | InvalidValueException | UnknownAuthorityCodeException ex){
+    } catch (UnsupportedParameterException | InvalidValueException | UnknownAuthorityCodeException ex){
       throw new WarpScriptException(getName()+" expects valid CRS names.", ex);
     }
 
