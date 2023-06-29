@@ -16,7 +16,6 @@
 
 plugins {
     id 'com.github.johnrengelman.shadow' version '7.0.0'
-    id 'net.nemerosa.versioning' version '2.14.0'
     id 'io.codearte.nexus-staging' version '0.22.0'
     id 'java'
     id 'java-library'
